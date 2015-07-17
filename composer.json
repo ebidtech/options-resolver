@@ -8,7 +8,8 @@
   "require": {
     "php":                       ">=5.4.0",
     "psr/log":                   "1.0.0",
-    "symfony/options-resolver":  "2.7.*"
+    "symfony/options-resolver":  "2.7.*",
+    "ebidtech/ebt-validator":    "1.*"
   },
   "require-dev": {
     "phpunit/phpunit":           "4.7.*",
