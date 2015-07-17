@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+PROJECT=`php -r "echo dirname(dirname(dirname(realpath('$0'))));"`
+
+STAGED_PHP_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep \\\\.php`
+
+# Determine if a file list is passed into PHP Lint and PHP Code Sniffer
+if [ "$#" -eq 1 ]
+then
+	oIFS=$IFS
+	IFS='
+	'
+	SFILES="$1"
+	IFS=$oIFS
+fi
+
+SFILES=${SFILES:-$STAGED_PHP_FILES_CMD}
+
+# Run PHP Lint
+echo "Checking PHP Lint..."
+for FILE in $SFILES
+do
+	php -l -d display_errors=0 $PROJECT/$FILE
+	if [ $? != 0 ]
+	then
+		echo "Fix the error before commit."
+		exit 1
+	fi
+	FILES="$FILES $PROJECT/$FILE"
+done
+
+# Run PHP Code Sniffer
+if [ "$FILES" != "" ]
+then
+	echo "Running Code Sniffer..."
+#	./vendor/bin/phpcs --standard=./vendor/instaclick/symfony2-coding-standard/Symfony2/ruleset.xml --encoding=utf-8 -n -p $FILES
+	./vendor/bin/phpcs --standard=Symfony2 --encoding=utf-8 --extensions=php -n -p $FILES
+	if [ $? != 0 ]
+	then
+		echo "Fix the error before commit."
+		exit 1
+	fi
+fi
+
+exit 0
