@@ -22,17 +22,6 @@ class OptionsResolverTest extends BaseUnitTestCase
     protected $optionsResolver;
 
     /**
-     * {@inheritDoc}
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        /* Create the options resolver. */
-        $this->optionsResolver = new OptionsResolver();
-    }
-
-    /**
      * Tests that an exception is thrown when trying to set a cast for an undefined exception.
      *
      * @expectedException        \Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
@@ -72,10 +61,10 @@ class OptionsResolverTest extends BaseUnitTestCase
     /**
      * Tests that the resolve method fails when a cast cannot be performed.
      *
-     * @param string $option      Name of the option.
-     * @param mixed $allowedTypes Allowed type for that option.
-     * @param string $cast        Type to cast the option to.
-     * @param mixed  $value       Value of the option.
+     * @param string $option       Name of the option.
+     * @param mixed  $allowedTypes Allowed type for that option.
+     * @param string $cast         Type to cast the option to.
+     * @param mixed  $value        Value of the option.
      *
      * @dataProvider invalidSetCastDataProvider
      *
@@ -94,7 +83,7 @@ class OptionsResolverTest extends BaseUnitTestCase
      * Tests success cases for the resolve method when using setCast.
      *
      * @param string $option       Name of the option.
-     * @param mixed $allowedTypes  Allowed type for that option.
+     * @param mixed  $allowedTypes Allowed type for that option.
      * @param string $cast         Type to cast the option to.
      * @param mixed  $value        Value of the option.
      * @param string $expectedType Expected option type after resolved.
@@ -163,5 +152,16 @@ class OptionsResolverTest extends BaseUnitTestCase
             array('test', 'float', 'float', '10.5     ', 'double'),
             array('test', 'float', 'float', '          10         ', 'double'),
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        /* Create the options resolver. */
+        $this->optionsResolver = new OptionsResolver();
     }
 }
