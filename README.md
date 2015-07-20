@@ -69,6 +69,6 @@ Currently the following cast types are allowed:
 * float
 * bool
 
-If an unsupported type cast is set an exception will be thrown. When a cast is set but the given **value is not castable** to that specific type, **the original value is kept**, and any additional validation are applied as normal.
+If an unsupported type cast is set an exception will be thrown. When a cast is set but the given **value is not castable** to that specific type, **the original value is kept**, and any additional validations are applied as normal.
 
-**NOTE:** Currently type casting is handled with PHP's ```filter_var() method```. For additional examples of how it converts specific cases please check the [official documentation]() or check this repository's tests.
+**NOTE:** Currently type casting is handled with PHP's ```filter_var() method```. For additional examples of how it converts specific cases please check the [official documentation]() or this repository's tests.
