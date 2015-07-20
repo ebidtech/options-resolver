@@ -87,6 +87,8 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      * @param string $option Option name.
      * @param string $type   Type to cast the option to.
      *
+     * @return OptionsResolver Returns itself.
+     *
      * @throws UndefinedOptionsException
      * @throws InvalidArgumentException
      */
@@ -116,6 +118,20 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
 
         /* Add the type cast. */
         $this->casts[$option] = $type;
+
+        return $this;
+    }
+
+    /**
+     * Checks whether an option was marked for type casting.
+     *
+     * @param string $option Name of the option.
+     *
+     * @return boolean TRUE is the option is marked for casting, FALSE otherwise.
+     */
+    public function isCast($option)
+    {
+        return isset($this->casts[$option]);
     }
 
     /**
@@ -123,12 +139,12 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      *
      * @param array $options Options to cast.
      *
-     * @return array The casted options.
+     * @return array The cast options.
      */
     protected function resolveCasts(array $options = array())
     {
         /* Create a copy of the options to work on. */
-        $castedOptions = $options;
+        $castOptions = $options;
 
         /* Iterate every options and cast as needed. */
         foreach ($options as $option => $value) {
@@ -140,10 +156,10 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
             }
             $type = $this->casts[$option];
 
-            $castedOptions[$option] = $this->castToType($value, $type);
+            $castOptions[$option] = $this->castToType($value, $type);
         }
 
-        return $castedOptions;
+        return $castOptions;
     }
 
     /**
@@ -152,7 +168,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      * @param mixed  $value Value to cast.
      * @param string $type  Type to cast to.
      *
-     * @return mixed Casted value.
+     * @return mixed Cast value.
      */
     protected function castToType($value, $type)
     {
