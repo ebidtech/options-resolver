@@ -1,14 +1,12 @@
 <?php
 
 /**
- * OptionsResolver.php
+ * This file is a part of the Validator library.
  *
- * Unauthorized copying or dissemination of this file, via any medium is strictly prohibited
- * Proprietary and confidential
+ * (c) 2015 Ebidtech
  *
- * @author     Diogo Teixeira <diogo.teixeira@emailbidding.com>
- * @copyright  Copyright (C) Wondeotec SA - All Rights Reserved
- * @license    LICENSE.txt
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace EBT\OptionsResolver\Model\OptionsResolver;
@@ -29,7 +27,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      *
      * @var array
      */
-    protected $validTypes = array(
+    protected $validCastTypes = array(
         self::TYPE_CAST_INT,
         self::TYPE_CAST_FLOAT,
         self::TYPE_CAST_BOOL,
@@ -106,12 +104,12 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
         }
 
         /* Ensure that a valid type to cast to is given. */
-        if (! Validator::isRequiredExistingValue($type, $this->validTypes)) {
+        if (! Validator::isRequiredExistingValue($type, $this->validCastTypes)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'The type cast "%s" does not exist. Defined type casts are: "%s".',
                     $type,
-                    implode('", "', $this->validTypes)
+                    implode('", "', $this->validCastTypes)
                 )
             );
         }
