@@ -11,7 +11,6 @@
 
 namespace EBT\OptionsResolver\Model\OptionsResolver;
 
-use EBT\Validator\Model\Validator\Validator;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 
@@ -106,7 +105,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
         }
 
         /* Ensure that a valid type to cast to is given. */
-        if (! Validator::isRequiredExistingValue($type, $this->validCastTypes)) {
+        if (! in_array($type, $this->validCastTypes)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'The type cast "%s" does not exist. Defined type casts are: "%s".',
