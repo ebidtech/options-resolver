@@ -11,6 +11,7 @@
 
 namespace EBT\OptionsResolver\Model\OptionsResolver;
 
+use EBT\OptionsResolver\Exception\ResolverException;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 
@@ -69,14 +70,35 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
 
     /**
      * {@inheritDoc}
+     *
+     * Merges options with the default values stored in the container and validates them.
+     *
+     * Exceptions are thrown if:
+     *  - Undefined options are passed;
+     *  - Required options are missing;
+     *  - Options have invalid types;
+     *  - Options have invalid values.
+     *
+     * @param array $options A map of option names to values.
+     *
+     * @return array The merged and validated options.
+     *
+     * @throws ResolverException
      */
     public function resolve(array $options = array())
     {
         /* Apply any type casts before resolving. */
         $options = $this->resolveCasts($options);
 
-        /* Resolve the options. */
-        return parent::resolve($options);
+        try {
+            /* Resolve the options. */
+            return parent::resolve($options);
+        } catch (\Exception $e) {
+
+            throw new ResolverException(
+                sprintf('An error occurred while resolving the options: %s', $e->getMessage())
+            );
+        }
     }
 
     /**

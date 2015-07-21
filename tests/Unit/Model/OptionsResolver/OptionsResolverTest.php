@@ -68,7 +68,7 @@ class OptionsResolverTest extends BaseUnitTestCase
      *
      * @dataProvider invalidSetCastDataProvider
      *
-     * @expectedException \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
+     * @expectedException \EBT\OptionsResolver\Exception\ResolverException
      */
     public function testSetCastFailure($option, $allowedTypes, $cast, $value)
     {
