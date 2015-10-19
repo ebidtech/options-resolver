@@ -45,6 +45,42 @@ class OptionsResolverTest extends BaseUnitTestCase
     }
 
     /**
+     * Tests that an exception is thrown when a closure with no arguments is given.
+     *
+     * @expectedException        \Symfony\Component\OptionsResolver\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The given closure must define exactly one required parameter (the value to cast).
+     */
+    public function testSetCastClosureWithWrongNumberOfArgumentsFailure()
+    {
+        $this->optionsResolver->setDefined('test_option');
+        $this->optionsResolver->setCast(
+            'test_option',
+            function () {
+
+                return null;
+            }
+        );
+    }
+
+    /**
+     * Tests that an exception is thrown when a closure with no arguments is given.
+     *
+     * @expectedException        \Symfony\Component\OptionsResolver\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The given closure must define exactly one required parameter (the value to cast).
+     */
+    public function testSetCastClosureWithWrongNumberOfRequiredArgumentsFailure()
+    {
+        $this->optionsResolver->setDefined('test_option');
+        $this->optionsResolver->setCast(
+            'test_option',
+            function ($value = null) {
+
+                return null;
+            }
+        );
+    }
+
+    /**
      * Tests that the isCast method returns true when a cast is defined and false when it is not.
      */
     public function testIsCast()
@@ -118,6 +154,15 @@ class OptionsResolverTest extends BaseUnitTestCase
             array('test', 'int', 'int', '123.0'),
             array('test', 'int', 'int', 123.5),
             array('test', 'int', 'float', 123.5),
+            array(
+                'test',
+                'int',
+                function ($value) {
+
+                    return is_int($value) ? (int) $value : $value;
+                },
+                'not an integer',
+            ),
         );
     }
 
@@ -151,6 +196,16 @@ class OptionsResolverTest extends BaseUnitTestCase
             array('test', 'float', 'float', '     10.5', 'double'),
             array('test', 'float', 'float', '10.5     ', 'double'),
             array('test', 'float', 'float', '          10         ', 'double'),
+            array(
+                'test',
+                'bool',
+                function ($value) {
+
+                    return 'si' === $value;
+                },
+                'si',
+                'boolean',
+            ),
         );
     }
 

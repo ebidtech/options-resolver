@@ -105,8 +105,8 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      * Sets a cast for a specific option. The given option will be cast to the given type before any validation, if
      * possible.
      *
-     * @param string $option Option name.
-     * @param string $type   Type to cast the option to.
+     * @param string          $option Option name.
+     * @param string|\Closure $type   Type to cast the option to or a closure to be lazily evaluated.
      *
      * @return OptionsResolver Returns itself.
      *
@@ -124,6 +124,21 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
                     implode('", "', $this->getDefinedOptions())
                 )
             );
+        }
+
+        /* Check if a closure was passed as argument. */
+        if ($type instanceof \Closure) {
+            $refClosure = new \ReflectionFunction($type);
+
+            /* The closure must have exactly one parameter, and it should be required. */
+            if (2 !== $refClosure->getNumberOfParameters() + $refClosure->getNumberOfRequiredParameters()) {
+                throw new InvalidArgumentException(
+                    'The given closure must define exactly one required parameter (the value to cast).'
+                );
+            }
+            $this->casts[$option] = $type;
+
+            return $this;
         }
 
         /* Ensure that a valid type to cast to is given. */
@@ -177,7 +192,9 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
             }
             $type = $this->casts[$option];
 
-            $castOptions[$option] = $this->castToType($value, $type);
+            $castOptions[$option] = ($type instanceof \Closure)
+                ? $type($value)
+                : $this->castToType($value, $type);
         }
 
         return $castOptions;
