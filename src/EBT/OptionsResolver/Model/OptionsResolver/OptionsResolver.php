@@ -15,30 +15,28 @@ use EBT\OptionsResolver\Exception\ResolverException;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 
+/**
+ * EBT\OptionsResolver\Model\OptionsResolver\OptionsResolver
+ */
 class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
 {
-    /* Valid cast types. */
-    const TYPE_CAST_INT    = 'int';
-    const TYPE_CAST_FLOAT  = 'float';
-    const TYPE_CAST_BOOL   = 'bool';
+    const TYPE_CAST_INT = 'int';
+    const TYPE_CAST_BOOL = 'bool';
+    const TYPE_CAST_FLOAT = 'float';
 
     /**
-     * Contains all valid types for cast.
-     *
      * @var array
      */
-    protected $validCastTypes = array(
+    protected $casts = [];
+
+    /**
+     * @var array
+     */
+    protected $validCastTypes = [
         self::TYPE_CAST_INT,
         self::TYPE_CAST_FLOAT,
         self::TYPE_CAST_BOOL,
-    );
-
-    /**
-     * Defines type casts to perform before value validation.
-     *
-     * @var array
-     */
-    protected $casts = array();
+    ];
 
     /**
      * {@inheritDoc}
@@ -63,7 +61,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
         parent::clear();
 
         /* This must be done after the parent to ensure that the parent's locked state is enforced. */
-        $this->casts = array();
+        $this->casts = [];
 
         return $this;
     }
@@ -79,19 +77,20 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      *  - Options have invalid types;
      *  - Options have invalid values.
      *
-     * @param array $options A map of option names to values.
+     * @param array $options               A map of option names to values.
+     * @param bool  $allowUndefinedOptions If set to true undefined options will not raise an error.
      *
-     * @return array The merged and validated options.
+     * @return array Merged and validated options.
      *
      * @throws ResolverException
      */
-    public function resolve(array $options = array())
+    public function resolve(array $options = [], $allowUndefinedOptions = false)
     {
-        /* Apply any type casts before resolving. */
+        $options = $this->clearUndefinedOptions($options, $allowUndefinedOptions);
         $options = $this->resolveCasts($options);
 
         try {
-            /* Resolve the options. */
+
             return parent::resolve($options);
         } catch (\Exception $e) {
 
@@ -163,7 +162,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
      *
      * @param string $option Name of the option.
      *
-     * @return boolean TRUE is the option is marked for casting, FALSE otherwise.
+     * @return bool TRUE is the option is marked for casting, FALSE otherwise.
      */
     public function isCast($option)
     {
@@ -171,13 +170,42 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
     }
 
     /**
+     * Clears undefined options before resolving, if the appropriate flag is set.
+     *
+     * @param array $options               Map of option names to values.
+     * @param bool  $allowUndefinedOptions If set to true undefined options will not raise an error.
+     *
+     * @return array Clean options.
+     */
+    protected function clearUndefinedOptions(array $options, $allowUndefinedOptions)
+    {
+        if (! $allowUndefinedOptions) {
+
+            return $options;
+        }
+
+        /* Find out undefined options by computing the difference between given and defined options. */
+        $undefinedOptions = array_diff(
+            array_keys($options),
+            $this->getDefinedOptions()
+        );
+
+        /* Remove undefined options by computing the difference between given and undefined options. */
+
+        return array_diff_key(
+            $options,
+            array_flip($undefinedOptions)
+        );
+    }
+
+    /**
      * Resolves a variable casts in the initial options.
      *
      * @param array $options Options to cast.
      *
-     * @return array The cast options.
+     * @return array Options after applying the relevant casts.
      */
-    protected function resolveCasts(array $options = array())
+    protected function resolveCasts(array $options = [])
     {
         /* Create a copy of the options to work on. */
         $castOptions = $options;
@@ -213,15 +241,15 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
         switch ($type) {
             case self::TYPE_CAST_INT:
                 $newValue = filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
-                $value = (null === $newValue) ? $value : $newValue;
+                $value    = (null === $newValue) ? $value : $newValue;
                 break;
             case self::TYPE_CAST_BOOL:
                 $newValue = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-                $value = (null === $newValue) ? $value : $newValue;
+                $value    = (null === $newValue) ? $value : $newValue;
                 break;
             case self::TYPE_CAST_FLOAT:
                 $newValue = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
-                $value = (null === $newValue) ? $value : $newValue;
+                $value    = (null === $newValue) ? $value : $newValue;
                 break;
         }
 
